@@ -8,7 +8,7 @@ import '../providers/cart.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-     // print('Product Item item is called');
+    // print('Product Item item is called');
     final product = Provider.of<Product>(context);
     final cart = Provider.of<Cart>(context);
     return ClipRRect(
@@ -52,6 +52,22 @@ class ProductItem extends StatelessWidget {
                   product.id,
                   product.price,
                   product.title,
+                );
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Add Item Your Cart!',
+                      textAlign: TextAlign.left,
+                    ),
+                    duration: Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        cart.removeSingleItem(product.id);
+                      },
+                    ),
+                  ),
                 );
               },
             ),
