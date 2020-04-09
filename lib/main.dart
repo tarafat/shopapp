@@ -17,6 +17,7 @@ import './screens/auth_screen.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -25,14 +26,14 @@ class MyApp extends StatelessWidget {
             value: Auth(),
           ),
           ChangeNotifierProxyProvider<Auth,Products>(
-            builder: (ctx, auth, previousProducts) => Products(auth.token,previousProducts.items),
-            initialBuilder:(ctx) => Products(null,[]),
+            builder: (ctx, auth, previousProducts) => Products(auth.token,auth.userId,previousProducts.items),
+            initialBuilder:(ctx) => Products(null,null,[]),
           ),
           ChangeNotifierProvider.value(
             value: Cart(),
           ),
           ChangeNotifierProxyProvider<Auth,Orders>(
-            builder: (ctx,auth,previousOrders) => Orders(auth.token,auth.id,previousOrders.orders),
+            builder: (ctx,auth,previousOrders) => Orders(auth.token,auth.userId,previousOrders.orders),
             initialBuilder: (ctx) => Orders(null, null,[]),
           ),
         ],
@@ -44,7 +45,10 @@ class MyApp extends StatelessWidget {
                 accentColor: Colors.deepOrange,
                 fontFamily: 'Lato',
               ),
-              home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+              home: auth.isAuth ? ProductsOverviewScreen() : FutureBuilder(future: auth.tryAutoLogin(),
+              builder:(ctx,authResultShapshot) => 
+              authResultShapshot.connectionState == ConnectionState.waiting ? CircularProgressIndicator()
+              : AuthScreen()),
               routes: {
                 ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
                 CartScreen.routeName: (ctx) => CartScreen(),

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shopapp/providers/product.dart';
 
 
 import './cart.dart';
@@ -35,41 +37,45 @@ class Orders with ChangeNotifier {
     final response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
+   // print(extractedData);
     if (extractedData == null) {
-      return;
+      return;  
     }
     extractedData.forEach((orderId, orderData) {
-      loadedOrders.add(
+        loadedOrders.add(
         OrderItem(
           id: orderId,
           amount: orderData['amount'],
           dateTime: DateTime.parse(orderData['dateTime']),
           products: (orderData['products'] as List<dynamic>)
               .map(
-                (item) => CartItem(
+                (item) => 
+                CartItem(
                       id: item['id'],
                       price: item['price'],
                       quantity: item['quantity'],
-                      title: item['title'],
+                      title: item['title'],             
                     ),
               )
               .toList(),
         ),
+          
       );
     });
     _orders = loadedOrders.reversed.toList();
+    print(_orders);
     notifyListeners();
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = 'https://shop-app-bde36.firebaseio.com/orders$userId.json?auth=$authToken';
+    final url = 'https://shop-app-bde36.firebaseio.com/orders/$userId.json?auth=$authToken';
     final timestamp = DateTime.now();
     final response = await http.post(
       url,
       body: json.encode({
         'amount': total,
         'dateTime': timestamp.toIso8601String(),
-        'products': [
+        'products':
           cartProducts
               .map((cp) => {
                     'id': cp.id,
@@ -78,7 +84,6 @@ class Orders with ChangeNotifier {
                     'price': cp.price,
                   })
               .toList(),
-        ]
       }),
     );
     _orders.insert(
