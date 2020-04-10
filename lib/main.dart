@@ -39,10 +39,11 @@ class MyApp extends StatelessWidget {
         ],
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => (MaterialApp(
+              debugShowCheckedModeBanner: false,
               title: 'MyShop',
               theme: ThemeData(
-                primarySwatch: Colors.purple,
-                accentColor: Colors.deepOrange,
+                primarySwatch: Colors.lightBlue,
+                accentColor: Colors.red,
                 fontFamily: 'Lato',
               ),
               home: auth.isAuth ? ProductsOverviewScreen() : FutureBuilder(future: auth.tryAutoLogin(),
